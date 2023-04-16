@@ -1,0 +1,435 @@
+<html>
+
+<head>
+    <title>大都市交通センサス 3次ODデータ</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/pmtiles@2.7.0/dist/index.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-overlay {
+            font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            width: 200px;
+            bottom: 30px;
+            left: 0;
+            padding: 10px;
+        }
+
+        .map-overlay .map-overlay-inner {
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-overlay label {
+            display: block;
+            margin: 0 0 0px;
+        }
+
+        .map-overlay input {
+            background-color: transparent;
+            display: inline-block;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            cursor: ew-resize;
+        }
+
+        .maplibregl-popup .maplibregl-popup-content {
+            padding: 8px 10px;
+            font: 12px/14px Arial, Helvetica, sans-serif;
+            color: black;
+            background: white;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+            border-radius: 5px;
+            width: 200px;
+            height: 180px;
+            overflow: scroll;
+        }
+
+        th,
+        td {
+            border: solid 1px;
+            /* 枠線指定 */
+        }
+
+        table {
+            font-size: 8pt;
+            /*table-layout: fixed;*/
+            /*width: 340px;*/
+            border-collapse: collapse;
+            /* セルの線を重ねる */
+        }
+
+        .legend {
+            /*background-color: #fff;*/
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            bottom: 50px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            font: 12px/14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            padding: 10px;
+            position: absolute;
+            right: 10px;
+            z-index: 1;
+            line-height: 1.2;
+            height: auto;
+        }
+
+        .legend h4 {
+            margin: 0 0 10px;
+        }
+
+        .legend div span {
+            border-radius: 50%;
+            display: inline-block;
+            height: 15px;
+            margin-right: 10px;
+            width: 15px;
+            color: orangered
+        }
+
+        #zokusei {
+            padding: 3px 4px;
+            font: 12px/14px Arial, Helvetica, sans-serif;
+            color: black;
+            background: white;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            width: fit-content;
+            /*width: 150px;*/
+            position: absolute;
+            /*bottom: 120px;*/
+            top: 5px;
+            z-index: 10;
+        }
+
+        #basemaps {
+            font: 12px/14px Arial, Helvetica, sans-serif;
+        }
+
+        .square {
+            width: 15px;
+            height: 5px;
+            /*border-radius: 5px;*/
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="map-overlay top">
+        <div class="map-overlay-inner">
+            <label>空中写真 不透明度: <span id="slider-opacity-value">30%</span></label>
+            <input id="slider-opacity" type="range" min="0" max="100" step="0" value="30">
+        </div>
+    </div>
+    <script type="text/javascript">
+        let protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+
+        let PMTILES_URL = "https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/out/teiki_od.pmtiles";
+
+        const p = new pmtiles.PMTiles(PMTILES_URL)
+        p.getMetadata().then((res) => console.log(res));
+
+        // this is so we share one instance across the JS code and the map renderer
+        protocol.add(p);
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://api.maptiler.com/maps/jp-mierune-dark/style.json?key=3vP7xaDm3gASNdwulEW1',
+            hash: true,
+            zoom: 9,
+            maxZoom: 23,
+            minZoom: 4,
+            center: [139.8396, 35.7157],
+            // 既存Attributionを非表示
+            attributionControl: false
+        })
+
+        // Attributionを折りたたみ表示
+        map.addControl(new maplibregl.AttributionControl({
+            compact: true
+        }));
+
+        // ズーム・回転
+        map.addControl(new maplibregl.NavigationControl());
+
+        // フルスクリーンモードのオンオフ
+        map.addControl(new maplibregl.FullscreenControl());
+
+        // 現在位置表示
+        map.addControl(new maplibregl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: false
+            },
+            fitBoundsOptions: { maxZoom: 18 },
+            trackUserLocation: true,
+            showUserLocation: true
+        }));
+
+        // スケール表示
+        map.addControl(new maplibregl.ScaleControl({
+            maxWidth: 200,
+            unit: 'metric'
+        }));
+
+        const sliderOpactiy = document.getElementById('slider-opacity');
+        const sliderOpactiyValue = document.getElementById('slider-opacity-value');
+
+        map.on('load', () => {
+
+            // 全国最新写真（シームレス）
+            map.addSource('seamlessphoto', {
+                type: 'raster',
+                tiles: ['https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg'],
+                tileSize: 256,
+                attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto">全国最新写真（シームレス）</a>'
+            });
+
+            map.addLayer({
+                id: 'seamlessphoto',
+                type: 'raster',
+                source: 'seamlessphoto',
+                minzoom: 12,
+                maxzoom: 23,
+            });
+
+            // スライダーで空中写真レイヤの不透明度を制御
+
+            // 不透明度の初期表示
+            map.setPaintProperty(
+                'seamlessphoto',
+                'raster-opacity',
+                0.3
+            );
+
+            sliderOpactiy.addEventListener('input', (e) => {
+                map.setPaintProperty(
+                    'seamlessphoto',
+                    'raster-opacity',
+                    parseInt(e.target.value, 10) / 100
+                );
+                sliderOpactiyValue.textContent = e.target.value + '%';
+            });
+
+            // 大都市交通センサス 3次ODデータ
+            map.addSource("pmtiles", {
+                type: "vector",
+                url: "pmtiles://" + PMTILES_URL,
+                attribution: '<a href="https://www.mlit.go.jp/sogoseisaku/transport/sosei_transport_tk_000007.html">第13回大都市交通センサス（国土交通省）</a>'
+            });
+
+            // 大都市交通センサスラインレイヤ
+            map.addLayer({
+                'id': 'pmtiles-line-1',
+                'type': 'line',
+                'source': 'pmtiles',
+                "source-layer": "teiki_od",
+                'layout': {
+                    //'line-join': 'bevel',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-width': [
+                        'step',
+                        ['get', '合計枚数'],
+                        0.75,               // 0 ～ 1000 未満のデフォルトの太さ
+                        1000, 10,           // 1000 以上 ～ 2000 未満の太さ
+                        2000, 20,           // 2000 以上 ～ 3000 未満の太さ
+                        3000, 30,           // 3000 以上 ～ 4000 未満の太さ
+                        4000, 40,           // 4000 以上 ～ 5000 未満の太さ
+                        5000, 50            // 5000以上
+                    ],
+                    // 'line-width': 15,
+                    'line-color': 'rgba(0, 112, 32, 0.3)',
+                    'line-blur': 0.8,
+                    'line-offset': 0.5
+                },
+                'filter': ['>=', ['get', '合計枚数'], 500]
+            });
+
+            map.addLayer({
+                'id': 'pmtiles-line-2',
+                'type': 'line',
+                'source': 'pmtiles',
+                "source-layer": "teiki_od",
+                'layout': {
+                    //'line-join': 'bevel',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-width': [
+                        'step',
+                        ['get', '合計枚数'],
+                        0.5,
+                        100, 5,
+                        2000, 15,
+                        3000, 25,
+                        4000, 35,
+                        5000, 45
+                    ],
+                    // 'line-width': 7,
+                    'line-color': 'rgba(0, 172, 64, 0.6)',
+                    'line-blur': 0.4,
+                    'line-offset': 0.5
+                },
+                'filter': ['>=', ['get', '合計枚数'], 500]
+            });
+
+            map.addLayer({
+                'id': 'pmtiles-line-3',
+                'type': 'line',
+                'source': 'pmtiles',
+                "source-layer": "teiki_od",
+                'layout': {
+                    //'line-join': 'bevel',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-width': [
+                        'step',
+                        ['get', '合計枚数'],
+                        0.25,
+                        1000, 1,
+                        2000, 10,
+                        3000, 20,
+                        4000, 30,
+                        5000, 40
+                    ],
+                    // 'line-width': 2,
+                    'line-color': 'rgba(220, 236, 220, 1)',
+                    'line-offset': 0.5
+                },
+                'filter': ['>=', ['get', '合計枚数'], 500]
+            });
+
+            // 駅データ
+            map.addSource('station', {
+                type: 'geojson',
+                data: './N02-21_Station_Centroid.geojson'
+            });
+
+            // 駅ポイントレイヤ
+            /*
+            map.addLayer({
+                id: 'station-point-1',
+                type: 'circle',
+                source: 'station',
+                minzoom: 5,
+                maxzoom: 23,
+                paint: {
+                    'circle-color': 'rgba(255, 255, 255, 1)',
+                    'circle-blur': 1,
+                    'circle-radius': 12
+                }
+            });
+
+            // 駅ポイントレイヤ
+            map.addLayer({
+                id: 'station-point-2',
+                type: 'circle',
+                source: 'station',
+                minzoom: 5,
+                maxzoom: 23,
+                paint: {
+                    'circle-color': 'rgba(255, 0, 255, 1)',
+                    'circle-radius': 6
+                }
+            });
+            */
+
+            // 駅ラベルレイヤ
+            map.addLayer({
+                id: 'station-label',
+                type: 'symbol',
+                source: 'station',
+                minzoom: 5,
+                maxzoom: 23,
+                layout: {
+                    'text-field': ['get', 'N02_005'],
+                    'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                    'text-size': 9,
+                    'text-offset': [0, -1.2]
+                },
+                paint: {
+                    'text-color': 'rgba(255, 255, 255, 1)',
+                    'text-halo-blur': 1,
+                    'text-halo-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-width': 2
+                }
+            });
+        })
+
+        map.showTileBoundaries = false;
+
+        map.on('click', 'pmtiles-line-1', (e) => {
+            var lng = e.lngLat.lng;
+            var lat = e.lngLat.lat;
+            var nyujojigyoshamei = e.features[0].properties['入場事業者名'];
+            var nyujorosemmei = e.features[0].properties['入場路線名'];
+            var nyujoekimei = e.features[0].properties['入場駅名'];
+            var shutsujojigyoshamei = e.features[0].properties['出場事業者名'];
+            var shutsujorosemmei = e.features[0].properties['出場路線名'];
+            var shutsujoekimei = e.features[0].properties['出場駅名'];
+            var kensu = e.features[0].properties['件数'];
+
+            new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(
+                    // 表形式
+                    '<table ' + 'style="font-size: 8pt; table-layout: auto;"' + '>' +
+                    '<tr>' +
+                    '<th overflow: hidden;>' + '項目' + '</th> ' + '<th overflow: hidden;>' + '内容' + '</th> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '入場事業者名' + '</td> ' + '<td>' + nyujojigyoshamei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '入場路線名' + '</td> ' + '<td>' + nyujorosemmei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '入場駅名' + '</td> ' + '<td>' + nyujoekimei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '出場事業者名' + '</td> ' + '<td>' + shutsujojigyoshamei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '出場路線名' + '</td> ' + '<td>' + shutsujorosemmei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '出場駅名' + '</td> ' + '<td>' + shutsujoekimei + '</td> ' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>' + '件数' + '</td> ' + '<td>' + kensu + '</td> ' +
+                    '</tr>' +
+                    '<table>'
+                    /*
+                    + '座標: ' + lat.toFixed(7) + "," + lng.toFixed(7) + ' ※クリック位置の座標<br>'
+                    + '<a href=\https://www.google.com/maps?q=' + lat + "," + lng + "&hl=ja' target='_blank'>🌎Google Maps</a>" + ' '
+                    + '<a href=\https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + "," + lng + "&hl=ja' target='_blank'>📷Street View</a>"
+                    */
+                )
+                .addTo(map);
+        });
+
+    </script>
+</body>
+
+</html>
