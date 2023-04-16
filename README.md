@@ -3,7 +3,7 @@
 - オープンソースソフトウェアで構築
 
 # デモサイト（MapLibre GL JS）
-- 使用データ：集計データ（PMTiles形式）
+- 使用データ：集計データ（PMTiles形式）※定期枚数500枚以上を表示
 - https://shi-works.github.io/transportation-census-teiki-pmtiles/
 - サンプル画像
 
