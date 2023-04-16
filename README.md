@@ -9,12 +9,12 @@
 ![Ft0ArXvaAAAeTxp](https://user-images.githubusercontent.com/71203808/232280823-f6a4e041-8ac6-46be-ac5d-24cfacf59a48.jpg)
 
 # データの加工
-## teiki_od_pattern_count.py
+## teiki_od_pattern_count.py  
 - 定期券発売実績調査データから開始駅終了駅間定期枚数（以下、集計データ）の集計を行うプログラムです。
 ### 使用データ
-- 定期券発売実績調査データ
+- 定期券発売実績調査データ  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/03_teiki/data/%E7%AC%AC13%E5%9B%9E%E5%A4%A7%E9%83%BD%E5%B8%82%E4%BA%A4%E9%80%9A%E3%82%BB%E3%83%B3%E3%82%B5%E3%82%B9%E5%AE%9A%E6%9C%9F%E5%88%B8%E7%99%BA%E5%A3%B2%E5%AE%9F%E7%B8%BE%E8%AA%BF%E6%9F%BB.csv`,139.7MB
-### 出力結果
+### 出力結果  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/03_teiki/out/teiki_od_pattern_count.csv`,44.3MB
 
 ## csvfile-add-coordinate.py
@@ -23,7 +23,7 @@
 ### 使用データ
 - 国土数値情報の鉄道データ（重心）  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/data/N02-21_Station_Centroid.csv`,737.9KB
-- 集計データ
+- 集計データ  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/03_teiki/out/teiki_od_pattern_count.csv`,44.3MB
 ### 出力結果
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/out/teiki_od_pattern_count_add_coordinate.csv`,78.1MB
@@ -36,11 +36,11 @@
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/out/teiki_od_pattern_count_add_coordinate.wkt`,91.4MB
 
 ## GeoJSON形式  
-- WKT形式（LINESTRING）の集計データをGeoJSON形式に変換したデータです。
+- WKT形式（LINESTRING）の集計データをGeoJSON形式に変換したデータです。  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/out/teiki_od.geojson`,271.8MB
 
 ## PMTiles形式（ベクトルタイル）  
-- GeoJSON形式の集計データを[tippecanoe](https://github.com/felt/tippecanoe)で[PMTiles形式](https://github.com/protomaps/PMTiles)に変換したデータです。
+- GeoJSON形式の集計データを[tippecanoe](https://github.com/felt/tippecanoe)で[PMTiles形式](https://github.com/protomaps/PMTiles)に変換したデータです。  
 `https://pmtiles-data.s3.ap-northeast-1.amazonaws.com/transportation-census/teiki/04_teiki_od_pattern_count_add_coordinate/out/teiki_od.pmtiles`,457.9MB
 
 # ライセンス
