@@ -382,13 +382,13 @@
         map.on('click', 'pmtiles-line-1', (e) => {
             var lng = e.lngLat.lng;
             var lat = e.lngLat.lat;
-            var nyujojigyoshamei = e.features[0].properties['入場事業者名'];
-            var nyujorosemmei = e.features[0].properties['入場路線名'];
-            var nyujoekimei = e.features[0].properties['入場駅名'];
-            var shutsujojigyoshamei = e.features[0].properties['出場事業者名'];
-            var shutsujorosemmei = e.features[0].properties['出場路線名'];
-            var shutsujoekimei = e.features[0].properties['出場駅名'];
-            var kensu = e.features[0].properties['件数'];
+            var s_jigyoshamei = e.features[0].properties['区間開始駅事業者名'];
+            var s_station = e.features[0].properties['区間開始駅名'];
+            var e_jigyoshamei = e.features[0].properties['区間終了駅事業者名'];
+            var e_station = e.features[0].properties['区間終了駅名'];
+            var tsukin = e.features[0].properties['通勤枚数'];
+            var tsugaku = e.features[0].properties['通学枚数'];
+            var goukei = e.features[0].properties['合計枚数'];
 
             new maplibregl.Popup()
                 .setLngLat(e.lngLat)
@@ -399,25 +399,25 @@
                     '<th overflow: hidden;>' + '項目' + '</th> ' + '<th overflow: hidden;>' + '内容' + '</th> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '入場事業者名' + '</td> ' + '<td>' + nyujojigyoshamei + '</td> ' +
+                    '<td>' + '区間開始駅事業者名' + '</td> ' + '<td>' + s_jigyoshamei + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '入場路線名' + '</td> ' + '<td>' + nyujorosemmei + '</td> ' +
+                    '<td>' + '区間開始駅名' + '</td> ' + '<td>' + s_station + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '入場駅名' + '</td> ' + '<td>' + nyujoekimei + '</td> ' +
+                    '<td>' + '区間終了駅事業者名' + '</td> ' + '<td>' + e_jigyoshamei + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '出場事業者名' + '</td> ' + '<td>' + shutsujojigyoshamei + '</td> ' +
+                    '<td>' + '区間終了駅名' + '</td> ' + '<td>' + e_station + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '出場路線名' + '</td> ' + '<td>' + shutsujorosemmei + '</td> ' +
+                    '<td>' + '通勤枚数' + '</td> ' + '<td>' + tsukin + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '出場駅名' + '</td> ' + '<td>' + shutsujoekimei + '</td> ' +
+                    '<td>' + '通学枚数' + '</td> ' + '<td>' + tsugaku + '</td> ' +
                     '</tr>' +
                     '<tr>' +
-                    '<td>' + '件数' + '</td> ' + '<td>' + kensu + '</td> ' +
+                    '<td>' + '合計枚数' + '</td> ' + '<td>' + goukei + '</td> ' +
                     '</tr>' +
                     '<table>'
                     /*
